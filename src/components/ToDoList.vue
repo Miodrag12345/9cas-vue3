@@ -37,8 +37,7 @@
       >
         <option value="Hitan">Hitan</option>
         <option value="Vazan">Vazan</option>
-        <option value="Nije toliko vazan">Nije toliko vazan</option>
-        <option value="Nebitan">Nebitan</option>
+        <option value="Normalan">Normalan</option>
       </Field>
       <ErrorMessage name="priority"></ErrorMessage>
 
@@ -61,6 +60,7 @@
 import { defineComponent } from "vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { TaskTypes } from "@/Types/TaskTypes";
+import {getAllTasks, saveTask, updateAllTasks} from "@/models/modeltasks";
 
 export default defineComponent({
   name: "TodoList",
@@ -75,9 +75,24 @@ export default defineComponent({
       description: "",
       dueDate: "",
       priority: null as TaskTypes["priority"] | null,
-      tasks: [] as TaskTypes[],
+      tasks: [] as TaskTypes[] ,
     };
   },
+
+  beforeMount() {
+     this.tasks=getAllTasks() ?? [];
+
+  },
+
+  watch:{
+    tasks:{
+      handler(task:TaskTypes[]){
+        updateAllTasks(task);
+      },
+      deep:true
+    }
+  },
+
   methods: {
     resetFields(): void {
       this.title = "";
@@ -87,23 +102,38 @@ export default defineComponent({
     },
 
     addTask(): void {
+
+      getAllTasks()
+
       const taskExists = this.tasks.some(
           (task) => task.title === this.title.trim()
       );
 
       if (taskExists) {
-        alert("Mislim da ovaj zadatak postoji ");
+        alert("Mislim da ovaj zadatak postoji");
         return;
       }
 
-      if (this.priority) {
-        this.tasks.push({
-          title: this.title,
-          description: this.description,
-          dueDate: this.dueDate,
-          priority: this.priority,
-        });
-      }
+      const task ={
+        title: this.title,
+        description: this.description,
+        dueDate: this.dueDate,
+        priority: this.priority
+      };
+
+      saveTask(task);
+      this.tasks.push(task);
+
+
+
+      //if (this.priority) {
+        //this.tasks.push({
+          //title: this.title,
+          //description: this.description,
+          //dueDate: this.dueDate,
+          //priority: this.priority,
+       // });
+     // }
 
       this.resetFields();
     },
