@@ -1,10 +1,13 @@
 import { TaskTypes } from "@/Types/TaskTypes";
 
-export const  getAllTasks = (): TaskTypes [] | null =>{
-    const tasks=localStorage.getItem("tasks");
+export const getAllTasks = (): TaskTypes[] | null => {
+    const tasks = localStorage.getItem("tasks");
 
-    return tasks === null ? null:JSON.parse(tasks);
+    if (tasks === null || tasks === "undefined") {
+        return null;
+    }
 
+    return JSON.parse(tasks);
 };
 
 export const saveTask = (task:TaskTypes):void => {

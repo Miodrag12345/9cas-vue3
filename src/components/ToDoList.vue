@@ -35,13 +35,26 @@
           v-model="priority"
           rules="required"
       >
-        <option value="Hitan">Hitan</option>
-        <option value="Vazan">Vazan</option>
-        <option value="Normalan">Normalan</option>
+        <option value="hitan">Hitan</option>
+        <option value="vazan">Vazan</option>
+        <option value="normalan">Normalan</option>
+        <option value="nebitan">Nebitan</option>
       </Field>
       <ErrorMessage name="priority"></ErrorMessage>
 
       <button type="submit">Snimi zadatak</button>
+    </Form>
+
+    <Form>
+      <Field
+          @change="changeSort"
+          name="prioritySort"
+          as="select"
+          v-model="prioritySort"
+      >
+        <option value="important">Po bitnosti</option>
+        <option value="not important">Po nebitnosti</option>
+      </Field>
     </Form>
 
     <div>
@@ -60,7 +73,8 @@
 import { defineComponent } from "vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { TaskTypes } from "@/Types/TaskTypes";
-import {getAllTasks, saveTask, updateAllTasks} from "@/models/modeltasks";
+import { getAllTasks, saveTask, updateAllTasks } from "@/models/modeltasks";
+import { PriorityOrder } from "@/Types/PriorityOrder";
 
 export default defineComponent({
   name: "TodoList",
@@ -75,22 +89,22 @@ export default defineComponent({
       description: "",
       dueDate: "",
       priority: null as TaskTypes["priority"] | null,
-      tasks: [] as TaskTypes[] ,
+      tasks: [] as TaskTypes[],
+      prioritySort: "",
     };
   },
 
   beforeMount() {
-     this.tasks=getAllTasks() ?? [];
-
+    this.tasks = getAllTasks() ?? [];
   },
 
-  watch:{
-    tasks:{
-      handler(task:TaskTypes[]){
+  watch: {
+    tasks: {
+      handler(task: TaskTypes[]) {
         updateAllTasks(task);
       },
-      deep:true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -101,10 +115,19 @@ export default defineComponent({
       this.priority = null;
     },
 
+    changeSort() {
+
+      const direction = this.prioritySort === "important" ? 1 : -1;
+
+      this.tasks.sort((a, b) => {
+        const aPriority = PriorityOrder[a.priority ?? "nebitan"] ?? 99;
+        const bPriority = PriorityOrder[b.priority ?? "nebitan"] ?? 99;
+
+        return (aPriority - bPriority) * direction;
+      });
+    },
+
     addTask(): void {
-
-      getAllTasks()
-
       const taskExists = this.tasks.some(
           (task) => task.title === this.title.trim()
       );
@@ -114,26 +137,15 @@ export default defineComponent({
         return;
       }
 
-      const task ={
+      const task: TaskTypes = {
         title: this.title,
         description: this.description,
         dueDate: this.dueDate,
-        priority: this.priority
+        priority: this.priority,
       };
 
       saveTask(task);
       this.tasks.push(task);
-
-
-
-      //if (this.priority) {
-        //this.tasks.push({
-          //title: this.title,
-          //description: this.description,
-          //dueDate: this.dueDate,
-          //priority: this.priority,
-       // });
-     // }
 
       this.resetFields();
     },
