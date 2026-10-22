@@ -1,101 +1,91 @@
 <template>
-  <div>
-    <h1>Hello world</h1>
 
-    <Form @submit="addTask">
-      <Field
-          name="title"
-          v-model="title"
-          type="text"
-          placeholder="Unesite naslov zadatka"
-          rules="required|min:3|StartedWithCapital|minWords:5"
-      ></Field>
-      <ErrorMessage name="title"></ErrorMessage>
+  <CreateTask></CreateTask>
 
-      <Field
-          name="description"
-          v-model="description"
-          type="text"
-          placeholder="Unesite text zadatka"
-          rules="required|min:10|max:20"
-      ></Field>
-      <ErrorMessage name="description"></ErrorMessage>
+  <Form class="sort-form">
+    <h2>Sortiranje</h2>
+    <Field @change="changeSort" name="prioritySort" as="select" v-model="prioritySort" class="form-input">
+      <option value="important">Po bitnosti</option>
+      <option value="notimportant">Po nebitnosti</option>
+    </Field>
+  </Form>
 
-      <Field
-          name="dueDate"
-          v-model="dueDate"
-          type="date"
-          rules="required"
-      ></Field>
-      <ErrorMessage name="dueDate"></ErrorMessage>
-
-      <Field
-          name="priority"
-          as="select"
-          v-model="priority"
-          rules="required"
-      >
-        <option value="hitan">Hitan</option>
-        <option value="vazan">Vazan</option>
-        <option value="normalan">Normalan</option>
-        <option value="nebitan">Nebitan</option>
-      </Field>
-      <ErrorMessage name="priority"></ErrorMessage>
-
-      <button type="submit">Snimi zadatak</button>
-    </Form>
-
-    <Form>
-      <Field
-          @change="changeSort"
-          name="prioritySort"
-          as="select"
-          v-model="prioritySort"
-      >
-        <option value="important">Po bitnosti</option>
-        <option value="not important">Po nebitnosti</option>
-      </Field>
-    </Form>
-
-    <div>
-      <div v-for="(task, index) in tasks" :key="index">
-        <p>{{ task.title }}</p>
+  <div class="allTasks">
+    <div class="task-column" v-for="(tasksInGroup, index) in groupedTasks" :key="index">
+      <h3 class="column-title">{{ index }}</h3>
+      <div class="task-card" v-for="(task, id) in tasksInGroup" :key="id">
+        <p class="task-title">{{ task.title }}</p>
         <p>{{ task.description }}</p>
-        <p>Rok: {{ task.dueDate }}</p>
-        <p>Priority: {{ task.priority }}</p>
-        <button @click="deleteTask(index)">Delete task</button>
+        <p><strong>Deadline:</strong> {{ task.dueDate }}</p>
+        <p><strong>Priority:</strong> {{ task.priority }}</p>
+        <button class="delete-btn" @click="deleteTask(id)">Delete task</button>
       </div>
     </div>
   </div>
+
 </template>
+
+<style>
+ .allTasks{
+   display:flex;
+   overflow-x: auto;
+
+ }
+  .allTasks .div {
+    width: 25%
+  }
+
+</style>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { TaskTypes } from "@/Types/TaskTypes";
-import { getAllTasks, saveTask, updateAllTasks } from "@/models/modeltasks";
+import {generateRandomId, getAllTasks, saveTask, updateAllTasks} from "@/models/modeltasks";
 import { PriorityOrder } from "@/Types/PriorityOrder";
+import {isIdUsed} from "@/helpers/idHelpers";
+import FormTaskType from "@/Types/FormTaskType";
+import { BoardType } from "@/Types/Boards/BoardType";
+
 
 export default defineComponent({
   name: "TodoList",
   components: {
     Form,
     Field,
-    ErrorMessage,
+
   },
-  data() {
+  data():FormTaskType {
     return {
-      title: "",
-      description: "",
-      dueDate: "",
+      id:'',
+      title:'',
+      description: '',
+      dueDate: '',
       priority: null as TaskTypes["priority"] | null,
       tasks: [] as TaskTypes[],
-      prioritySort: "",
+      prioritySort:'',
+      board:'todo'
     };
   },
 
   beforeMount() {
     this.tasks = getAllTasks() ?? [];
+  },
+
+  computed: {
+    groupedTypes(): Record<BoardType, TaskTypes[]> {
+      const groups: Record<BoardType, TaskTypes[]> = {
+        todo: [],
+        doing: [],
+        done: []
+      };
+
+     for(const task of this.tasks){
+       groups[task.board].push(task);
+     }
+
+      return groups;
+    }
   },
 
   watch: {
@@ -137,11 +127,19 @@ export default defineComponent({
         return;
       }
 
+      let tempId=generateRandomId();
+
+      if(isIdUsed(tempId, this.tasks)){
+        tempId=generateRandomId();
+      }
+
       const task: TaskTypes = {
+        id:generateRandomId(),
         title: this.title,
         description: this.description,
         dueDate: this.dueDate,
         priority: this.priority,
+        board:this.board
       };
 
       saveTask(task);
