@@ -60,4 +60,8 @@
 
 <script setup lang="ts">
 import { Form, Field, ErrorMessage } from "vee-validate";
+const emit = defineEmits<{(e: 'add-task' , task: {}): void; }>();
+
+
+
 </script>
