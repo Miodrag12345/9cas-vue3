@@ -59,9 +59,34 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Form, Field, ErrorMessage } from "vee-validate";
-const emit = defineEmits<{(e: 'add-task' , task: {}): void; }>();
+import type { FormTaskType } from "../../Types/Boards/FormTaskType";
+
+const emit = defineEmits<{
+  (e: 'add-task', task: FormTaskType): void;
+}>();
+
+const title = ref('');
+const description = ref('');
+const dueDate = ref('');
+const priority = ref('');
+const board = ref('');
+
+function handleSubmit() {
+  emit('add-task', {
+    title: title.value,
+    description: description.value,
+    dueDate: dueDate.value,
+    priority: priority.value,
+    board: board.value
+  });
 
 
-
+  title.value = '';
+  description.value = '';
+  dueDate.value = '';
+  priority.value = '';
+  board.value = '';
+}
 </script>

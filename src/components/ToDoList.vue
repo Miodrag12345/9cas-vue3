@@ -52,7 +52,7 @@ export default defineComponent({
   name: "TodoList",
   components: {
     Form,
-    Field,
+    Field
 
   },
   data():FormTaskType {
