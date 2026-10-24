@@ -1,6 +1,5 @@
 <template>
-
-  <CreateTask></CreateTask>
+  <CreateTask @add-task="addTaskFromChild"></CreateTask>
 
   <Form class="sort-form">
     <h2>Sortiranje</h2>
@@ -11,7 +10,7 @@
   </Form>
 
   <div class="allTasks">
-    <div class="task-column" v-for="(tasksInGroup, index) in groupedTasks" :key="index">
+    <div class="task-column" v-for="(tasksInGroup, index) in groupedTypes" :key="index">
       <h3 class="column-title">{{ index }}</h3>
       <div class="task-card" v-for="(task, id) in tasksInGroup" :key="id">
         <p class="task-title">{{ task.title }}</p>
@@ -22,49 +21,47 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <style>
- .allTasks{
-   display:flex;
-   overflow-x: auto;
-
- }
-  .allTasks .div {
-    width: 25%
-  }
-
+.allTasks{
+  display:flex;
+  overflow-x: auto;
+}
+.allTasks .div {
+  width: 25%
+}
 </style>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { TaskTypes } from "@/Types/TaskTypes";
-import {generateRandomId, getAllTasks, saveTask, updateAllTasks} from "@/models/modeltasks";
+import { generateRandomId, getAllTasks, saveTask, updateAllTasks } from "@/models/modeltasks";
 import { PriorityOrder } from "@/Types/PriorityOrder";
-import {isIdUsed} from "@/helpers/idHelpers";
+import { isIdUsed } from "@/helpers/idHelpers";
 import FormTaskType from "@/Types/FormTaskType";
 import { BoardType } from "@/Types/Boards/BoardType";
-
+import CreateTask from "./tasks/partials/CreateTask.vue";
 
 export default defineComponent({
   name: "TodoList",
   components: {
     Form,
-    Field
+    Field,
 
+    CreateTask
   },
-  data():FormTaskType {
+  data(): FormTaskType {
     return {
-      id:'',
-      title:'',
+      id: '',
+      title: '',
       description: '',
       dueDate: '',
       priority: null as TaskTypes["priority"] | null,
       tasks: [] as TaskTypes[],
-      prioritySort:'',
-      board:'todo'
+      prioritySort: '',
+      board: 'todo'
     };
   },
 
@@ -80,9 +77,11 @@ export default defineComponent({
         done: []
       };
 
-     for(const task of this.tasks){
-       groups[task.board].push(task);
-     }
+      for (const task of this.tasks) {
+        if (groups[task.board]) {
+          groups[task.board].push(task);
+        }
+      }
 
       return groups;
     }
@@ -98,15 +97,7 @@ export default defineComponent({
   },
 
   methods: {
-    resetFields(): void {
-      this.title = "";
-      this.description = "";
-      this.dueDate = "";
-      this.priority = null;
-    },
-
     changeSort() {
-
       const direction = this.prioritySort === "important" ? 1 : -1;
 
       this.tasks.sort((a, b) => {
@@ -117,9 +108,9 @@ export default defineComponent({
       });
     },
 
-    addTask(): void {
+    addTaskFromChild(formData: FormTaskType): void {
       const taskExists = this.tasks.some(
-          (task) => task.title === this.title.trim()
+          (task) => task.title === formData.title.trim()
       );
 
       if (taskExists) {
@@ -127,25 +118,22 @@ export default defineComponent({
         return;
       }
 
-      let tempId=generateRandomId();
-
-      if(isIdUsed(tempId, this.tasks)){
-        tempId=generateRandomId();
+      let tempId = generateRandomId();
+      if (isIdUsed(tempId, this.tasks)) {
+        tempId = generateRandomId();
       }
 
-      const task: TaskTypes = {
-        id:generateRandomId(),
-        title: this.title,
-        description: this.description,
-        dueDate: this.dueDate,
-        priority: this.priority,
-        board:this.board
+      const newTask: TaskTypes = {
+        id: tempId,
+        title: formData.title,
+        description: formData.description,
+        dueDate: formData.dueDate,
+        priority: formData.priority,
+        board: formData.board || 'todo'
       };
 
-      saveTask(task);
-      this.tasks.push(task);
-
-      this.resetFields();
+      saveTask(newTask);
+      this.tasks.push(newTask);
     },
 
     deleteTask(index: number): void {

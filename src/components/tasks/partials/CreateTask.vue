@@ -1,6 +1,6 @@
 <template>
   <div class="forms-container">
-    <Form @submit="addTask" class="task-form">
+    <Form @submit="handleSubmit" class="task-form">
       <Field
           name="title"
           v-model="title"
@@ -50,21 +50,23 @@
         <option value="done">Done</option>
       </Field>
 
-      <button type="submit">Snimi zadatak</button>
+      <button class="submit-btn" type="submit">Snimi zadatak</button>
     </Form>
-
-
-
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref} from 'vue';
 import { Form, Field, ErrorMessage } from "vee-validate";
-import type { FormTaskType } from "../../Types/Boards/FormTaskType";
 
 const emit = defineEmits<{
-  (e: 'add-task', task: FormTaskType): void;
+  (e: 'add-task', task: {
+    title: string;
+    description: string;
+    dueDate: string;
+    priority: string;
+    board: string;
+  }): void;
 }>();
 
 const title = ref('');
@@ -81,7 +83,6 @@ function handleSubmit() {
     priority: priority.value,
     board: board.value
   });
-
 
   title.value = '';
   description.value = '';
