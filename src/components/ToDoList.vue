@@ -1,5 +1,5 @@
 <template>
-  <CreateTask @add-task="addTaskFromChild"></CreateTask>
+  <CreateTask @add-task="addTask"></CreateTask>
 
   <Form class="sort-form">
     <h2>Sortiranje</h2>
@@ -12,7 +12,7 @@
   <div class="allTasks">
     <div class="task-column" v-for="(tasksInGroup, index) in groupedTypes" :key="index">
       <h3 class="column-title">{{ index }}</h3>
-      <div class="task-card" v-for="(task, id) in tasksInGroup" :key="id">
+      <div class="task-card" v-for="(task, id) in tasksInGroup" :key="task.id || id">
         <p class="task-title">{{ task.title }}</p>
         <p>{{ task.description }}</p>
         <p><strong>Deadline:</strong> {{ task.dueDate }}</p>
@@ -24,12 +24,12 @@
 </template>
 
 <style>
-.allTasks{
-  display:flex;
+.allTasks {
+  display: flex;
   overflow-x: auto;
 }
 .allTasks .div {
-  width: 25%
+  width: 25%;
 }
 </style>
 
@@ -49,19 +49,13 @@ export default defineComponent({
   components: {
     Form,
     Field,
-
-    CreateTask
+    CreateTask,
   },
-  data(): FormTaskType {
+  data() {
     return {
-      id: '',
-      title: '',
-      description: '',
-      dueDate: '',
-      priority: null as TaskTypes["priority"] | null,
+      id: "",
       tasks: [] as TaskTypes[],
-      prioritySort: '',
-      board: 'todo'
+      prioritySort: "",
     };
   },
 
@@ -74,7 +68,7 @@ export default defineComponent({
       const groups: Record<BoardType, TaskTypes[]> = {
         todo: [],
         doing: [],
-        done: []
+        done: [],
       };
 
       for (const task of this.tasks) {
@@ -84,7 +78,7 @@ export default defineComponent({
       }
 
       return groups;
-    }
+    },
   },
 
   watch: {
@@ -108,9 +102,9 @@ export default defineComponent({
       });
     },
 
-    addTaskFromChild(formData: FormTaskType): void {
+    addTask(formInput: any) {
       const taskExists = this.tasks.some(
-          (task) => task.title === formData.title.trim()
+          (task) => task.title === formInput.title.trim()
       );
 
       if (taskExists) {
@@ -123,17 +117,17 @@ export default defineComponent({
         tempId = generateRandomId();
       }
 
-      const newTask: TaskTypes = {
+      const newTaskToSave: TaskTypes = {
         id: tempId,
-        title: formData.title,
-        description: formData.description,
-        dueDate: formData.dueDate,
-        priority: formData.priority,
-        board: formData.board || 'todo'
+        title: formInput.title,
+        description: formInput.description,
+        dueDate: formInput.dueDate,
+        priority: formInput.priority,
+        board: formInput.board || "todo",
       };
 
-      saveTask(newTask);
-      this.tasks.push(newTask);
+      saveTask(newTaskToSave);
+      this.tasks.push(newTaskToSave);
     },
 
     deleteTask(index: number): void {
