@@ -1,26 +1,14 @@
 <template>
   <CreateTask @add-task="addTask"></CreateTask>
 
-  <Form class="sort-form">
-    <h2>Sortiranje</h2>
-    <Field @change="changeSort" name="prioritySort" as="select" v-model="prioritySort" class="form-input">
-      <option value="important">Po bitnosti</option>
-      <option value="notimportant">Po nebitnosti</option>
-    </Field>
-  </Form>
+  <SortTask
+      :prioritySort="prioritySort"
+      @update:priority-sort="prioritySort = $event"
+      @change-sort="changeSort"
+  ></SortTask>
 
-  <div class="allTasks">
-    <div class="task-column" v-for="(tasksInGroup, index) in groupedTypes" :key="index">
-      <h3 class="column-title">{{ index }}</h3>
-      <div class="task-card" v-for="(task, id) in tasksInGroup" :key="task.id || id">
-        <p class="task-title">{{ task.title }}</p>
-        <p>{{ task.description }}</p>
-        <p><strong>Deadline:</strong> {{ task.dueDate }}</p>
-        <p><strong>Priority:</strong> {{ task.priority }}</p>
-        <button class="delete-btn" @click="deleteTask(id)">Delete task</button>
-      </div>
-    </div>
-  </div>
+
+  <AllTasks :groupedTasks="groupedTasks" @delete="deleteTask"></AllTasks>
 </template>
 
 <style>
@@ -28,43 +16,44 @@
   display: flex;
   overflow-x: auto;
 }
-.allTasks .div {
+.allTasks > div {
   width: 25%;
 }
 </style>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Form, Field, ErrorMessage } from "vee-validate";
 import { TaskTypes } from "@/Types/TaskTypes";
 import { generateRandomId, getAllTasks, saveTask, updateAllTasks } from "@/models/modeltasks";
-import { PriorityOrder } from "@/Types/PriorityOrder";
+import { PriorityOrder as priorityOrder } from "@/Types/PriorityOrder";
 import { isIdUsed } from "@/helpers/idHelpers";
-import FormTaskType from "@/Types/FormTaskType";
 import { BoardType } from "@/Types/Boards/BoardType";
 import CreateTask from "./tasks/partials/CreateTask.vue";
+import SortTask from "./tasks/partials/SortTask.vue";
+import AllTasks from "@/components/tasks/partials/AllTasks.vue";
 
 export default defineComponent({
   name: "TodoList",
   components: {
-    Form,
-    Field,
+    AllTasks,
     CreateTask,
+    SortTask,
   },
   data() {
     return {
       id: "",
       tasks: [] as TaskTypes[],
-      prioritySort: "",
+      prioritySort: "important",
     };
   },
 
-  beforeMount() {
+  mounted() {
     this.tasks = getAllTasks() ?? [];
   },
 
   computed: {
-    groupedTypes(): Record<BoardType, TaskTypes[]> {
+
+    groupedTasks(): Record<BoardType, TaskTypes[]> {
       const groups: Record<BoardType, TaskTypes[]> = {
         todo: [],
         doing: [],
@@ -83,8 +72,8 @@ export default defineComponent({
 
   watch: {
     tasks: {
-      handler(task: TaskTypes[]) {
-        updateAllTasks(task);
+      handler(newTasks: TaskTypes[]) {
+        updateAllTasks(newTasks);
       },
       deep: true,
     },
@@ -95,20 +84,21 @@ export default defineComponent({
       const direction = this.prioritySort === "important" ? 1 : -1;
 
       this.tasks.sort((a, b) => {
-        const aPriority = PriorityOrder[a.priority ?? "nebitan"] ?? 99;
-        const bPriority = PriorityOrder[b.priority ?? "nebitan"] ?? 99;
+        const aPriority = priorityOrder[(a.priority ?? "nebitan") as keyof typeof priorityOrder] ?? 99;
+        const bPriority = priorityOrder[(b.priority ?? "nebitan") as keyof typeof priorityOrder] ?? 99;
+
 
         return (aPriority - bPriority) * direction;
       });
     },
 
-    addTask(formInput: any) {
+    addTask(newTask: any) {
       const taskExists = this.tasks.some(
-          (task) => task.title === formInput.title.trim()
+          (task) => task.title.trim() === newTask.title.trim()
       );
 
       if (taskExists) {
-        alert("Mislim da ovaj zadatak postoji");
+        alert("Zadatak sa ovim imenom vec postoji");
         return;
       }
 
@@ -119,19 +109,19 @@ export default defineComponent({
 
       const newTaskToSave: TaskTypes = {
         id: tempId,
-        title: formInput.title,
-        description: formInput.description,
-        dueDate: formInput.dueDate,
-        priority: formInput.priority,
-        board: formInput.board || "todo",
+        title: newTask.title,
+        description: newTask.description,
+        dueDate: newTask.dueDate,
+        priority: newTask.priority,
+        board: newTask.board || "todo",
       };
 
       saveTask(newTaskToSave);
       this.tasks.push(newTaskToSave);
     },
 
-    deleteTask(index: number): void {
-      this.tasks.splice(index, 1);
+    deleteTask(taskId: string): void {
+      this.tasks = this.tasks.filter((task) => task.id !== taskId);
     },
   },
 });
