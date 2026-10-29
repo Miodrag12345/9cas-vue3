@@ -4,18 +4,23 @@
     <p>{{ task.description }}</p>
     <p><strong>Deadline:</strong> {{ task.dueDate }}</p>
     <p><strong>Priority:</strong> {{ task.priority }}</p>
-    <button class="delete-btn" @click="$emit('delete', task.id)">Delete task</button>
+    <button class="delete-btn" @click="handleDelete">Delete task</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue';
-import { TaskTypes } from "@/Types/TaskTypes";
+import type { TaskTypes } from "@/Types/TaskTypes";
 
-
-defineProps<{
+const props = defineProps<{
   task: TaskTypes;
 }>();
 
-defineEmits(['delete']);
+const emit = defineEmits<{
+  (e: 'delete-task', id: string): void
+}>();
+
+function handleDelete() {
+  emit('delete-task', props.task.id!);
+}
 </script>

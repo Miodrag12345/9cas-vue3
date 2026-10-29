@@ -8,7 +8,7 @@
   ></SortTask>
 
 
-  <AllTasks :groupedTasks="groupedTasks" @delete="deleteTask"></AllTasks>
+  <AllTasks :groupedTasks="groupedTasks" @deleteTask="deleteTask"></AllTasks>
 </template>
 
 <style>
