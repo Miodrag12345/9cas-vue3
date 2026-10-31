@@ -25,3 +25,17 @@ watch(prioritySort, (value) => {
   emit('change-sort');
 });
 </script>
+
+<style scoped>
+.sort-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+}
+</style>

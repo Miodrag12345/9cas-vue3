@@ -91,3 +91,51 @@ function handleSubmit() {
   board.value = '';
 }
 </script>
+
+<style >
+
+.task-form
+ {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-input:focus {
+  border-color: #409eff;
+}
+
+.submit-btn {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  background-color: #5cb85c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.submit-btn:hover {
+  background-color: #4cae4c;
+}
+
+.error-message {
+  font-size: 0.875rem;
+  color: #e74c3c;
+  margin-top: 0.2rem;
+}
+
+
+</style>

@@ -11,15 +11,8 @@
   <AllTasks :groupedTasks="groupedTasks" @deleteTask="deleteTask"></AllTasks>
 </template>
 
-<style>
-.allTasks {
-  display: flex;
-  overflow-x: auto;
-}
-.allTasks > div {
-  width: 25%;
-}
-</style>
+
+
 
 <script lang="ts">
 import { defineComponent } from "vue";
@@ -120,8 +113,8 @@ export default defineComponent({
       this.tasks.push(newTaskToSave);
     },
 
-    deleteTask(taskId: string): void {
-      this.tasks = this.tasks.filter((task) => task.id !== taskId);
+    deleteTask(id:string){
+        this.tasks=this.tasks.filter(task => task.id !== id);
     },
   },
 });
