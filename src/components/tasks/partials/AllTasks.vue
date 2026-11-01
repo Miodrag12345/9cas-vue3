@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <PopUptask v-if="showPopup"></PopUptask>
+  <PopUptask v-if="showPopup" @close="closePopup" ></PopUptask>
 </template>
 
 <script setup lang="ts">
@@ -36,6 +36,12 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'delete-task', id: string): void
 }>();
+
+function  closePopup ()
+{
+  showPopup.value=false;
+}
+
 </script>
 
 <style scoped>

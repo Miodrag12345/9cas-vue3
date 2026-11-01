@@ -1,21 +1,30 @@
 <template>
 
-  <div class="task-popup">
+  <div class="task-popup" @click.self="emit('close')">
       <div class="popup-content">
          <h2>Task title</h2>
          <p>Task Description</p>
          <p>Board</p>
+         <button @click="emit('close')">Close</button>
       </div>
   </div>
 
 </template>
 
+<script setup lang="ts">
+
+import {defineEmits} from 'vue';
+
+const emit= defineEmits (['close'])
+
+
+
+</script>
+
+
 <style>
 
-.hidden {
-  display: none !important;
 
-}
 
 
 .task-popup {
