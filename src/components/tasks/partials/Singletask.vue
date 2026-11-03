@@ -20,7 +20,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'delete-task', id: string): void;
-  (e: 'show-popup'):void;
+  (e: 'show-popup', task:TaskTypes):void;
 }>();
 
 function handleDelete() {
@@ -28,7 +28,7 @@ function handleDelete() {
 }
 
 function  handleShowPopup (){
-  emit('show-popup');
+  emit('show-popup',props.task);
 }
 
 </script>

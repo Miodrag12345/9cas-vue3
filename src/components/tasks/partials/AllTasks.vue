@@ -13,7 +13,10 @@
     </div>
   </div>
 
-  <PopUptask v-if="showPopup" @close="closePopup" ></PopUptask>
+  <PopUptask v-if="showPopup"
+             @close="closePopup"
+             :task="selectedTask"
+  ></PopUptask>
 </template>
 
 <script setup lang="ts">
@@ -25,8 +28,11 @@ import PopUptask from "@/components/tasks/partials/popUptask.vue";
 
 const showPopup = ref(false);
 
-function openPopup() {
+const selectedTask= ref<TaskTypes | null>(null)
+
+function openPopup(task:TaskTypes) {
   showPopup.value = true;
+  selectedTask.value=task;
 }
 
 defineProps<{
@@ -40,6 +46,7 @@ const emit = defineEmits<{
 function  closePopup ()
 {
   showPopup.value=false;
+  selectedTask.value=null;
 }
 
 </script>

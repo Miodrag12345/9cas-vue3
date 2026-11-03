@@ -2,7 +2,7 @@
 
   <div class="task-popup" @click.self="emit('close')">
       <div class="popup-content">
-         <h2>Task title</h2>
+         <h2>{{task?.title}}</h2>
          <p>Task Description</p>
          <p>Board</p>
          <button @click="emit('close')">Close</button>
@@ -13,7 +13,10 @@
 
 <script setup lang="ts">
 
-import {defineEmits} from 'vue';
+import {defineEmits,defineProps} from 'vue';
+import {TaskTypes} from "@/Types/TaskTypes";
+
+const props = defineProps<{task:TaskTypes | null }> ()
 
 const emit= defineEmits (['close'])
 
