@@ -19,6 +19,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'delete-task', id: string): void
+  (e:'show-create-popup'):void
 }>();
 
 function closePopup() {
@@ -30,7 +31,7 @@ function closePopup() {
 <template>
   <div class="mainDiv">
     <div class="header">
-      <button class="create-btn">Create task</button>
+      <button class="create-btn" @click="emit('show-create-popup')">Create task</button>
     </div>
 
     <div class="allTasks">

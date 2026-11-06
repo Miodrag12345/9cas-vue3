@@ -13,7 +13,10 @@
   ></SortTask>
 
 
-  <AllTasks :groupedTasks="groupedTasks" @deleteTask="deleteTask"></AllTasks>
+  <AllTasks :groupedTasks="groupedTasks"
+            @deleteTask="deleteTask"
+            @showCreatePopup="openCreatePopup"
+  ></AllTasks>
 </template>
 
 
