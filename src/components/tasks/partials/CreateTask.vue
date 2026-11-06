@@ -1,57 +1,49 @@
 <template>
   <div class="forms-container">
-    <Form @submit="handleSubmit" class="task-form">
-      <Field
-          name="title"
-          v-model="title"
-          type="text"
-          placeholder="Unesite naslov zadatka"
-          rules="required|min:3|StartedWithCapital|minWords:5"
-      />
-      <ErrorMessage name="title" />
+    <div class="createTaskPopUp">
+      <div class="innerTaskPopUp">
+        <Form @submit="handleSubmit" class="task-form">
+          <h2>Create a new task</h2>
 
-      <Field
-          name="description"
-          v-model="description"
-          type="text"
-          placeholder="Unesite text zadatka"
-          rules="required|min:10|max:20"
-      />
-      <ErrorMessage name="description" />
+          <div class="form-group">
+            <Field
+                name="title"
+                v-model="title"
+                type="text"
+                placeholder="Unesite naslov zadatka"
+                rules="required|min:3"
+                class="form-input"
+            />
+            <ErrorMessage name="title" class="error-message" />
+          </div>
 
-      <Field
-          name="dueDate"
-          v-model="dueDate"
-          type="date"
-          rules="required"
-      />
-      <ErrorMessage name="dueDate" />
+          <div class="form-group">
+            <Field
+                name="description"
+                v-model="description"
+                type="text"
+                placeholder="Unesite text zadatka"
+                rules="required|min:10|max:250"
+                class="form-input"
+            />
+            <ErrorMessage name="description" class="error-message" />
+          </div>
 
-      <Field
-          name="priority"
-          as="select"
-          v-model="priority"
-          rules="required"
-      >
-        <option value="hitan">Hitan</option>
-        <option value="vazan">Vazan</option>
-        <option value="normalan">Normalan</option>
-        <option value="nebitan">Nebitan</option>
-      </Field>
-      <ErrorMessage name="priority" />
+          <div class="form-group">
+            <Field
+                name="dueDate"
+                v-model="dueDate"
+                type="date"
+                class="form-input"
+            />
+            <ErrorMessage name="dueDate" class="error-message" />
+          </div>
 
-      <Field
-          name="board"
-          as="select"
-          v-model="board"
-      >
-        <option value="todo">ToDo</option>
-        <option value="doing">Doing</option>
-        <option value="done">Done</option>
-      </Field>
-
-      <button class="submit-btn" type="submit">Snimi zadatak</button>
-    </Form>
+          <button class="submit-btn">Save</button>
+          <button type="button" class="submit-btn">Close</button>
+        </Form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -67,6 +59,7 @@ const emit = defineEmits<{
     priority: string;
     board: string;
   }): void;
+  (e:'close-create-task'):void;
 }>();
 
 const title = ref('');
@@ -90,9 +83,36 @@ function handleSubmit() {
   priority.value = '';
   board.value = '';
 }
+
+function closePopUp (){
+  emit('close-create-task');
+}
+
 </script>
 
 <style >
+
+.createTaskPopUp{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.innerTaskPopUp {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
 
 .task-form
  {

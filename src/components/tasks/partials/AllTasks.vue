@@ -1,38 +1,16 @@
-<template>
-  <div class="allTasks">
-    <div class="task-column" v-for="(tasksInGroup, boardType) in groupedTasks" :key="boardType">
-      <h3 class="column-title">{{ boardType }}</h3>
-
-      <Singletask
-          v-for="task in tasksInGroup"
-          :key="task.id"
-          :task="task"
-          @deleteTask="$emit('delete-task', $event)"
-          @show-popup="openPopup"
-      />
-    </div>
-  </div>
-
-  <PopUptask v-if="showPopup"
-             @close="closePopup"
-             :task="selectedTask"
-  ></PopUptask>
-</template>
-
 <script setup lang="ts">
-import { ref, defineEmits } from 'vue'; // Dodan 'ref' ovde
+import { ref } from 'vue';
 import type { BoardType } from "@/Types/Boards/BoardType";
 import type { TaskTypes } from "@/Types/TaskTypes";
 import Singletask from "@/components/tasks/partials/Singletask.vue";
 import PopUptask from "@/components/tasks/partials/popUptask.vue";
 
 const showPopup = ref(false);
+const selectedTask = ref<TaskTypes | null>(null);
 
-const selectedTask= ref<TaskTypes | null>(null)
-
-function openPopup(task:TaskTypes) {
+function openPopup(task: TaskTypes) {
   showPopup.value = true;
-  selectedTask.value=task;
+  selectedTask.value = task;
 }
 
 defineProps<{
@@ -43,13 +21,38 @@ const emit = defineEmits<{
   (e: 'delete-task', id: string): void
 }>();
 
-function  closePopup ()
-{
-  showPopup.value=false;
-  selectedTask.value=null;
+function closePopup() {
+  showPopup.value = false;
+  selectedTask.value = null;
 }
-
 </script>
+
+<template>
+  <div class="mainDiv">
+    <div class="header">
+      <button class="create-btn">Create task</button>
+    </div>
+
+    <div class="allTasks">
+      <div class="task-column" v-for="(tasksInGroup, index) in groupedTasks" :key="index">
+        <h3 class="column-title">{{ index }}</h3>
+        <Singletask
+            v-for="task in tasksInGroup"
+            :key="task.id"
+            :task="task"
+            @delete-task="emit('delete-task', $event)"
+            @show-popup="openPopup"
+        ></Singletask>
+      </div>
+    </div>
+  </div>
+
+  <PopUptask
+      v-if="showPopup"
+      @close="closePopup"
+      :task="selectedTask"
+  ></PopUptask>
+</template>
 
 <style scoped>
 .column-title {

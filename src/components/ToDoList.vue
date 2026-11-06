@@ -1,5 +1,10 @@
 <template>
-  <CreateTask @add-task="addTask"></CreateTask>
+  <CreateTask
+      @add-task="addTask"
+      @close-create-task="closeCreateTaskPopup"
+      v-if="showCreatePopUp"
+
+  ></CreateTask>
 
   <SortTask
       :prioritySort="prioritySort"
@@ -37,6 +42,7 @@ export default defineComponent({
       id: "",
       tasks: [] as TaskTypes[],
       prioritySort: "important",
+      showCreatePopUp:false
     };
   },
 
@@ -73,6 +79,15 @@ export default defineComponent({
   },
 
   methods: {
+
+    openCreatePopup (){
+      this.showCreatePopUp=true;
+    },
+
+    closeCreateTaskPopup() {
+      this.showCreatePopUp=false;
+    },
+
     changeSort() {
       const direction = this.prioritySort === "important" ? 1 : -1;
 

@@ -1,15 +1,16 @@
+
 <template>
-
   <div class="task-popup" @click.self="emit('close')">
-      <div class="popup-content">
-         <h2>{{task?.title}}</h2>
-         <p>Task Description</p>
-         <p>Board</p>
-         <button @click="emit('close')">Close</button>
-      </div>
+    <div class="popup-content">
+      <h2>{{ task?.title }}</h2>
+      <p>{{ task?.description }}</p>
+      <p>{{ task?.dueDate }}</p>
+      <button @click="emit('close')">Close</button>
+    </div>
   </div>
-
 </template>
+
+
 
 <script setup lang="ts">
 
