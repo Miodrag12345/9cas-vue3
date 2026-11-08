@@ -32,6 +32,7 @@ import { BoardType } from "@/Types/Boards/BoardType";
 import CreateTask from "./tasks/partials/CreateTask.vue";
 import SortTask from "./tasks/partials/SortTask.vue";
 import AllTasks from "@/components/tasks/partials/AllTasks.vue";
+import { sortTasks } from "@/services/taskservice";
 
 export default defineComponent({
   name: "TodoList",
@@ -92,15 +93,11 @@ export default defineComponent({
     },
 
     changeSort() {
-      const direction = this.prioritySort === "important" ? 1 : -1;
 
-      this.tasks.sort((a, b) => {
-        const aPriority = priorityOrder[(a.priority ?? "nebitan") as keyof typeof priorityOrder] ?? 99;
-        const bPriority = priorityOrder[(b.priority ?? "nebitan") as keyof typeof priorityOrder] ?? 99;
+      this.tasks = sortTasks(this.tasks, this.prioritySort);
 
 
-        return (aPriority - bPriority) * direction;
-      });
+
     },
 
     addTask(newTask: any) {
