@@ -3,7 +3,6 @@
       @add-task="addTask"
       @close-create-task="closeCreateTaskPopup"
       v-if="showCreatePopUp"
-
   ></CreateTask>
 
   <SortTask
@@ -12,27 +11,24 @@
       @change-sort="changeSort"
   ></SortTask>
 
-
-  <AllTasks :groupedTasks="groupedTasks"
-            @deleteTask="deleteTask"
-            @showCreatePopup="openCreatePopup"
+  <AllTasks
+      :groupedTasks="groupedTasks"
+      @delete-task="deleteTask"
+      @show-create-popup="openCreatePopup"
   ></AllTasks>
 </template>
-
-
-
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { TaskTypes } from "@/Types/TaskTypes";
-import { generateRandomId, getAllTasks, saveTask, updateAllTasks } from "@/models/modeltasks";
-import { PriorityOrder as priorityOrder } from "@/Types/PriorityOrder";
-import { isIdUsed } from "@/helpers/idHelpers";
-import { BoardType } from "@/Types/Boards/BoardType";
+import { getAllTasks, updateAllTasks } from "@/models/modeltasks";
 import CreateTask from "./tasks/partials/CreateTask.vue";
 import SortTask from "./tasks/partials/SortTask.vue";
 import AllTasks from "@/components/tasks/partials/AllTasks.vue";
-import { sortTasks } from "@/services/taskservice";
+import { BoardType } from "@/Types/Boards/BoardType";
+
+
+import { prepareTask, sortTasks } from "@/services/taskservice";
 
 export default defineComponent({
   name: "TodoList",
@@ -46,7 +42,7 @@ export default defineComponent({
       id: "",
       tasks: [] as TaskTypes[],
       prioritySort: "important",
-      showCreatePopUp:false
+      showCreatePopUp: false
     };
   },
 
@@ -55,7 +51,6 @@ export default defineComponent({
   },
 
   computed: {
-
     groupedTasks(): Record<BoardType, TaskTypes[]> {
       const groups: Record<BoardType, TaskTypes[]> = {
         todo: [],
@@ -83,21 +78,16 @@ export default defineComponent({
   },
 
   methods: {
-
-    openCreatePopup (){
-      this.showCreatePopUp=true;
+    openCreatePopup() {
+      this.showCreatePopUp = true;
     },
 
     closeCreateTaskPopup() {
-      this.showCreatePopUp=false;
+      this.showCreatePopUp = false;
     },
 
     changeSort() {
-
       this.tasks = sortTasks(this.tasks, this.prioritySort);
-
-
-
     },
 
     addTask(newTask: any) {
@@ -110,26 +100,14 @@ export default defineComponent({
         return;
       }
 
-      let tempId = generateRandomId();
-      if (isIdUsed(tempId, this.tasks)) {
-        tempId = generateRandomId();
-      }
 
-      const newTaskToSave: TaskTypes = {
-        id: tempId,
-        title: newTask.title,
-        description: newTask.description,
-        dueDate: newTask.dueDate,
-        priority: newTask.priority,
-        board: newTask.board || "todo",
-      };
+      const preparedTask = prepareTask(newTask, this.tasks);
 
-      saveTask(newTaskToSave);
-      this.tasks.push(newTaskToSave);
+      this.tasks.push(preparedTask);
     },
 
-    deleteTask(id:string){
-        this.tasks=this.tasks.filter(task => task.id !== id);
+    deleteTask(id: string) {
+      this.tasks = this.tasks.filter((task) => task.id !== id);
     },
   },
 });
