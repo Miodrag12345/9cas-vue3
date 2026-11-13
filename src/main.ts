@@ -3,6 +3,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import { defineRule } from "vee-validate";
 import { required, min,max } from "@vee-validate/rules";
+import {createPinia} from "pinia";
 
 defineRule("required", required);
 defineRule("min", min);
@@ -13,7 +14,7 @@ defineRule("StartedWithCapital" , (value:string) => {
         return  "Input most not be an empty string ";
     }
 
-    if(value [0] === value[0].toUpperCase()
+    if(value [0] !== value[0].toUpperCase()
 
     ){
        return "string is start with capital letter";
@@ -35,4 +36,6 @@ defineRule("minWords" , (value:string,[minWords]:[number])=> {
     }
 )
 
-createApp(App).mount("#app");
+const realApp=createApp(App);
+realApp.use(createPinia());
+realApp.mount('#app');
