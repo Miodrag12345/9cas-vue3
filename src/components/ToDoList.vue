@@ -1,34 +1,29 @@
 <template>
   <CreateTask
-      @add-task="addTask"
+      @add-task="taskStore.addTask"
       @close-create-task="closeCreateTaskPopup"
       v-if="showCreatePopUp"
   ></CreateTask>
 
   <SortTask
-      :prioritySort="prioritySort"
-      @update:priority-sort="prioritySort = $event"
-      @change-sort="changeSort"
+      :prioritySort="taskStore.prioritySort"
+      @update:priority-sort="taskStore.prioritySort = $event"
+      @change-sort="taskStore.changeSort"
   ></SortTask>
 
+  <!-- Uklonili smo @delete-task jer se brisanje sada radi direktno iz komponente zadatka preko store-a -->
   <AllTasks
-      :groupedTasks="groupedTasks"
-      @delete-task="deleteTask"
+      :groupedTasks="taskStore.groupedTasks"
       @show-create-popup="openCreatePopup"
   ></AllTasks>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { TaskTypes } from "@/Types/TaskTypes";
-import { getAllTasks, updateAllTasks } from "@/models/modeltasks";
 import CreateTask from "./tasks/partials/CreateTask.vue";
 import SortTask from "./tasks/partials/SortTask.vue";
 import AllTasks from "@/components/tasks/partials/AllTasks.vue";
-import { BoardType } from "@/Types/Boards/BoardType";
-
-
-import { prepareTask, sortTasks } from "@/services/taskservice";
+import { useTaskStore } from "@/store/useTaskStore";
 
 export default defineComponent({
   name: "TodoList",
@@ -37,44 +32,18 @@ export default defineComponent({
     CreateTask,
     SortTask,
   },
-  data() {
+
+  setup() {
+    const taskStore = useTaskStore(); // OBAVEZNO malo 't'
     return {
-      id: "",
-      tasks: [] as TaskTypes[],
-      prioritySort: "important",
-      showCreatePopUp: false
+      taskStore,
     };
   },
 
-  mounted() {
-    this.tasks = getAllTasks() ?? [];
-  },
-
-  computed: {
-    groupedTasks(): Record<BoardType, TaskTypes[]> {
-      const groups: Record<BoardType, TaskTypes[]> = {
-        todo: [],
-        doing: [],
-        done: [],
-      };
-
-      for (const task of this.tasks) {
-        if (groups[task.board]) {
-          groups[task.board].push(task);
-        }
-      }
-
-      return groups;
-    },
-  },
-
-  watch: {
-    tasks: {
-      handler(newTasks: TaskTypes[]) {
-        updateAllTasks(newTasks);
-      },
-      deep: true,
-    },
+  data() {
+    return {
+      showCreatePopUp: false, // Ostaje samo lokalno stanje za prikaz modala
+    };
   },
 
   methods: {
@@ -84,30 +53,6 @@ export default defineComponent({
 
     closeCreateTaskPopup() {
       this.showCreatePopUp = false;
-    },
-
-    changeSort() {
-      this.tasks = sortTasks(this.tasks, this.prioritySort);
-    },
-
-    addTask(newTask: any) {
-      const taskExists = this.tasks.some(
-          (task) => task.title.trim() === newTask.title.trim()
-      );
-
-      if (taskExists) {
-        alert("Zadatak sa ovim imenom vec postoji");
-        return;
-      }
-
-
-      const preparedTask = prepareTask(newTask, this.tasks);
-
-      this.tasks.push(preparedTask);
-    },
-
-    deleteTask(id: string) {
-      this.tasks = this.tasks.filter((task) => task.id !== id);
     },
   },
 });

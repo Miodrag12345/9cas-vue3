@@ -25,6 +25,7 @@ export const useTaskStore=defineStore('taskStore', {
     actions: {
         deleteTask(id: string): void {
             this.tasks = this.tasks.filter((task) => task.id !== id)
+            this.saveTasks();
 
         },
         changeSort() {
